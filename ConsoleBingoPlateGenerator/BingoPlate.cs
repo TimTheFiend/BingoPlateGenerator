@@ -31,7 +31,23 @@ namespace ConsoleBingoPlateGenerator
             Card = new int[3, 9];
             CreateBingoCard();
         }
-        
+
+        public void PrintCard()
+        {
+            Console.WriteLine("".PadLeft(44, '='));
+            for (int y = 0; y < Card.GetLength(0); y++)
+            {
+                Console.Write("|");
+                for (int x = 0; x < Card.GetLength(1); x++)
+                {
+                    Console.Write(Card[y, x].ToString().PadLeft(2, ' '));
+                    Console.Write(" | ");
+                }
+                Console.Write(Environment.NewLine);
+            }
+            Console.WriteLine("".PadLeft(44, '='));
+        }
+
 
         private void CreateBingoCard()
         {
