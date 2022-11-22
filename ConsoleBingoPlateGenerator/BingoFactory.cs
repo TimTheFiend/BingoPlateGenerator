@@ -12,29 +12,21 @@ namespace ConsoleBingoPlateGenerator
     {
         private static Random rng = new Random();
 
-        public static void CreatePlates(int amount)
+        public static HashSet<string> CreatePlates(int amount)
         {
-            List<string> plates = new List<string>();
-            //HashSet<string> plates = new HashSet<string>();
+            //List<string> plates = new List<string>();
+            HashSet<string> plates = new HashSet<string>();
             while (plates.Count < amount)
             {
                 List<int> row1 = GetShuffledRow;
                 List<int> row2 = GetShuffledRow;
                 if (TryCreateRow(row1, row2, out List<int> row3))
                 {
-                    plates.Add(CreateId(row1, row2, row3));
+                    plates.Add(CreateRandomValue(CreateId(row1, row2, row3)));
                 }
             }
-            CreateRandomValues(ref plates);
-            //plates = CreateRandomValues(plates);
 
-#if DEBUG
-            foreach (var plate in plates)
-            {
-
-                Console.WriteLine(plate);
-            }
-#endif
+            return plates;
         }
 
         private static List<int> GetShuffledRow
@@ -57,9 +49,13 @@ namespace ConsoleBingoPlateGenerator
 
             for (int i = 0; i < row1.Count; i++)
             {
-                if (row1[i] + row2[i] == 2)
-                    continue;
-                availablePositions.Add(i);
+                if (row1[i] + row2[i] != 2)
+                {
+                    availablePositions.Add(i);
+                }
+                //if (row1[i] + row2[i] == 2)
+                //    continue;
+                //availablePositions.Add(i);
             }
             // If there isn't room for row values;
             if (availablePositions.Count < 5)
@@ -75,6 +71,11 @@ namespace ConsoleBingoPlateGenerator
                 row3[pos] = 1;
             }
             return true;
+        }
+
+        private static bool IsAvailablePosition(int x, int y)
+        {
+            return x + y < 2;
         }
 
 
@@ -95,6 +96,62 @@ namespace ConsoleBingoPlateGenerator
                 throw new Exception("NOT 35");
 
             return id;
+        }
+
+        private static string CreateRandomValue(string plate)
+        {
+            int minValue = 1;  // First column cannot have 0 as value.
+            const int maxValue = 9;
+
+            string top = "";
+            string mid = "";
+            string bot = "";
+
+            foreach (var pos in plate.ToCharArray())
+            {
+                int cellValue = pos - '0';
+                var values = Enumerable.Range(minValue, maxValue).ToList();
+                int value1 = values[rng.Next(0, values.Count)];
+                values.Remove(value1);
+                int value2 = values[rng.Next(0, values.Count)];
+
+                if (value1 == value2)
+                {
+                    throw new Exception("values the same");
+                }
+
+
+                switch (cellValue)
+                {
+                    case 0:
+                        break;
+                    case 1:
+                        top += rng.Next(minValue, maxValue).ToString();
+                        break;
+                    case 2:
+                        mid += rng.Next(minValue, maxValue).ToString();
+                        break;
+                    case 4:
+                        bot += rng.Next(minValue, maxValue).ToString();
+                        break;
+                    case 3:
+                        top += Math.Min(value1, value2);
+                        mid += Math.Max(value1, value2);
+                        break;
+                    case 5:
+                        top += Math.Min(value1, value2);
+                        bot += Math.Max(value1, value2);
+                        break;
+                    case 6:
+                        mid += Math.Min(value1, value2);
+                        bot += Math.Max(value1, value2);
+                        break;
+                    default:
+                        break;
+                }
+                minValue = 0;
+            }
+            return plate + top + mid + bot;
         }
 
         //private static List<string> CreateRandomValues(List<string> bingoPlates)
