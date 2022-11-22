@@ -11,8 +11,24 @@ namespace ConsoleBingoPlateGenerator
     {
         static void Main(string[] args)
         {
-            var plates = BingoFactory.CreatePlates(10000);
 
+
+
+
+            int plateAmount = 100;
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var plates = BingoFactory.CreatePlates(plateAmount);
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine((float)elapsedMs / 1000 + " seconds.");
+
+            string foo = plates.ElementAt(0);
+
+            BingoPlate card = new BingoPlate(foo);
+
+            //card.CreateBingoCard();
+            Console.ReadLine();
         }
 
     }

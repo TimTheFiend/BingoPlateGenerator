@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -10,131 +11,88 @@ namespace ConsoleBingoPlateGenerator
 {
     public class BingoPlate
     {
-        static Random rng = new Random();
+        private readonly int _PositionLength = 9;
+        private readonly int _RowLength = 5;
 
-        public static int[] CreateRow()
+        public string Position { get; private set; }
+        public string TopRow { get; private set; }
+        public string MidRow { get; private set; }
+        public string BottomRow { get; private set; }
+
+        public int[,] Card;
+
+        public BingoPlate(string id)
         {
-            int[] row = new int[9];
+            Position = id.Substring(0, _PositionLength);
+            TopRow = id.Substring(_PositionLength, _RowLength);
+            MidRow = id.Substring(_PositionLength + _RowLength, _RowLength);
+            BottomRow = id.Substring(_PositionLength + _RowLength + _RowLength, _RowLength);
 
-            Random rng = new Random();
-
-            var strBinary = Convert.ToString(rng.Next(1, 256 + 1), 2).ToCharArray();
-
-            foreach (var item in strBinary.Select((c, i) => (c, i)))
-            {
-                row[item.i] = (int)item.c;
-            }
-
-            return row;
-
+            Card = new int[3, 9];
+            CreateBingoCard();
         }
-
-        public static List<string> CreateRows(int amount)
-        {
-            List<string> rows = new List<string>();
-
-            while (rows.Count < amount)
-            {
-                var row1 = ShuffleSingleRow();
-                var row2 = ShuffleSingleRow();
-
-                if (TryCreateLastRow(row1, row2, out List<int> row3))
-                {
-                    rows.Add(CreateId(row1, row2, row3));
-                }
-            }
-
-            foreach (var item in rows)
-            {
-                int result = 0;
-                foreach (var x in item.ToCharArray())
-                {
-                    result += x - '0';
-                    //result += Convert.ToInt32(x);
-                }
-                if (result != 35)
-                {
-                    throw new Exception("NOT RIGHT");
-                }
-            }
-            return rows;
-        }
-
         
 
-        public static List<int> ShuffleSingleRow()
-        {
-            var row = new List<int>() { 1, 1, 1, 1, 1, 0, 0, 0, 0 };
-
-            row.Shuffle();
-            //for (int i = 0; i < row.Count; i++)
-            //{
-            //    int index = rng.Next(i, row.Count);
-            //    var temp = row[i];
-            //    row[i] = row[index];
-            //    row[index] = temp;
-            //}
-
-            return row;
-        }
-
-        private static bool TryCreateLastRow(List<int> row1, List<int> row2, out List<int> row3)
+        private void CreateBingoCard()
         {
 
-            row3 = new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            List<int> availablePositions = new List<int>();
+            int top = 0;
+            int mid = 0;
+            int bot = 0;
+            int currentPos = 0;
 
-            for (int i = 0; i < row1.Count; i++)
+            foreach (char pos in Position.ToCharArray())
             {
-                if (row1[i] + row2[i] == 2)
+                int value = pos - '0';
+                switch (value)
                 {
-                    continue;
+                    case 1:
+                        Card[0, currentPos] = int.Parse(currentPos + TopRow.Substring(top, 1));
+                        top++;
+                        break;
+                    case 2:
+                        Card[1, currentPos] = int.Parse(currentPos + MidRow.Substring(mid, 1));
+                        mid++;
+                        break;
+                    case 3:
+                        Card[0, currentPos] = int.Parse(currentPos + TopRow.Substring(top, 1));
+                        top++;
+                        Card[1, currentPos] = int.Parse(currentPos + MidRow.Substring(mid, 1));
+                        mid++;
+                        break;
+                    case 4:
+                        Card[2, currentPos] = int.Parse(currentPos + BottomRow.Substring(bot, 1));
+                        bot++;
+                        break;
+                    case 5:
+                        Card[2, currentPos] = int.Parse(currentPos + BottomRow.Substring(bot, 1));
+                        bot++;
+                        Card[0, currentPos] = int.Parse(currentPos + TopRow.Substring(top, 1));
+                        top++;
+                        break;
+                    case 6:
+                        Card[2, currentPos] = int.Parse(currentPos + BottomRow.Substring(bot, 1));
+                        bot++;
+                        Card[1, currentPos] = int.Parse(currentPos + MidRow.Substring(mid, 1));
+                        mid++;
+                        break;
+                    default:
+
+                        break;
                 }
-                availablePositions.Add(i);
-            }
 
-            while (availablePositions.Count > 5)
-            {
-                availablePositions.RemoveAt(rng.Next(availablePositions.Count));
+                currentPos++;
             }
-            if (availablePositions.Count != 5)
-            {
-                return false;
-            }
-            foreach (var item in availablePositions)
-            {
-                row3[item] = 1;
-            }
-
-            return true;
         }
 
-
-        private static string CreateId(params IEnumerable<int>[] ints)
+        public bool EnsureCorrectValues
         {
-            Console.WriteLine();
-            ints.Shuffle();
-            //for (int i = 0; i < ints.Length; i++)
-            //{
-            //    int index = rng.Next(i, ints.Length);
-            //    var temp = ints[i];
-            //    ints[i] = ints[index];
-            //    ints[index] = temp;
-            //}
-
-            string id = "";
-            var row1 = ints[0].ToArray();
-            var row2 = ints[1].ToArray();
-            var row3 = ints[2].ToArray();
-
-            for (int i = 0; i < ints[1].Count(); i++)
+            get
             {
-                id += (row1[i] + (row2[i] * 2) + (row3[i] * 4)).ToString();
+                return this.values.CheckLength();
             }
-
-            return id;
         }
 
-
+        private List<string> values => new List<string>() { Position, TopRow, MidRow, BottomRow };
     }
 }

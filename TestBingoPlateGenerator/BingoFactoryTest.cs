@@ -57,4 +57,25 @@ namespace TestBingoPlateGenerator
             Assert.IsTrue(noZero);
         }
     }
+
+    [TestClass]
+    public class BingoPlateTest
+    {
+        [TestMethod]
+        public void EnsureCorrectValues_StringLengthAre9or5_ReturnsTrue()
+        {
+            const int platesAmount = 10000;
+            HashSet<string> plates = BingoFactory.CreatePlates(platesAmount);
+            List<BingoPlate> bingoPlates = new List<BingoPlate>();
+            foreach (var item in plates)
+            {
+                bingoPlates.Add(new BingoPlate(item));
+            }
+
+            foreach (BingoPlate bp in bingoPlates)
+            {
+                Assert.IsTrue(bp.EnsureCorrectValues);
+            }
+        }
+    }
 }

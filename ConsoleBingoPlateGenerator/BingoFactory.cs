@@ -23,9 +23,10 @@ namespace ConsoleBingoPlateGenerator
                 if (TryCreateRow(row1, row2, out List<int> row3))
                 {
                     plates.Add(CreateRandomValue(CreateId(row1, row2, row3)));
+                    //Console.Write($"\r{Math.Round((decimal)plates.Count / amount * 100, 2).ToString().PadLeft(6)}%");
                 }
             }
-
+            Console.WriteLine();
             return plates;
         }
 
