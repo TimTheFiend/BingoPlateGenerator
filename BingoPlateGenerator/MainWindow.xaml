@@ -5,8 +5,93 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BingoPlateGenerator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow"
+        Height="225"
+        Width="400">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25px" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="25px" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25px" /> <!-- Header -->
+            <RowDefinition Height="25px" /> <!-- Titel -->
+            <RowDefinition Height="12.5px" /> <!-- Divider -->
+            <RowDefinition Height="25px" /> <!-- Amount -->
+            <RowDefinition Height="12.5px" /> <!-- Divider -->
+            <RowDefinition Height="*" /> <!-- Buttons -->
+            <RowDefinition Height="25px" /> <!-- Footer -->
+        </Grid.RowDefinitions>
+
+
+        <!-- Titel  -->
+        <DockPanel
+            LastChildFill="True"
+            Grid.Row="1"
+            Grid.Column="1">
+
+            <TextBlock
+                Text="Title:"
+                DockPanel.Dock="Left"
+                FontSize="15"
+                FontWeight="Bold"
+                Margin="0,0,5,0"
+                />
+            <TextBox
+                x:Name="txtbxTitle"
+                Width="Auto"
+                FontSize="15"
+                Margin="5,0,5,0"
+            />
+        </DockPanel>
+        <!-- Amount of plates  -->
+        <DockPanel
+            LastChildFill="True"
+            Grid.Row="3"
+            Grid.Column="1"
+            >
+            <TextBlock
+                Text="Amount of bingo cards:"
+                DockPanel.Dock="Left"
+                FontSize="15"
+                FontWeight="Bold"
+                Margin="0,0,5,0"
+                />
+            <TextBox
+                x:Name="txtbxPlateAmount"
+                Width="Auto"
+                FontSize="15"
+                Margin="5,0,5,0"
+                MaxLength="6"
+                PreviewTextInput="NumberValidationTextBox"
+                />
+        </DockPanel>
         
+        <!-- Buttons -->
+        <DockPanel
+            HorizontalAlignment="Center"
+            Grid.Row="5"
+            Grid.Column="1"
+            Margin="5"
+            >
+            <Button
+                x:Name="btnOutput"
+                Width="auto"
+                Height="auto"
+                Content="Select output directory"
+                Margin="10,5"
+                />
+
+            <Button
+                x:Name="btnGenerate"
+                Width="auto"
+                Height="auto"
+                Content="Generate Bingo Plates"
+                Margin="10,5"
+                
+                />
+            
+        </DockPanel>
     </Grid>
 </Window>

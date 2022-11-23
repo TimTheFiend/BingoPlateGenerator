@@ -25,7 +25,7 @@ namespace ConsoleBingoPlateGenerator
                 bingoCards.Add(new BingoPlate(id));
             }
 
-            BingoPlatePrinter.PrintPlates(bingoCards);
+            //BingoPlatePrinter.PrintPlates(bingoCards);
         }
 
         static void DrawOnImage()

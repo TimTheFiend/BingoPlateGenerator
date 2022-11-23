@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
-namespace ConsoleBingoPlateGenerator
+namespace BingoPlateGenerator
 {
-    public static class BingoPlatePrinter
+    public static class BingoPrinter
     {
         private static readonly int PixelsBetweenRows = 18;
         private static readonly int StartY = 29;
@@ -27,10 +27,10 @@ namespace ConsoleBingoPlateGenerator
         private static readonly PointF Title = new PointF(3, 7);
         private static Font arial = new Font("Arial", 10);
 
-        //public static void PrintPlates(IEnumerable<string> plates, string Title, string OutputDir)
-        public static void PrintPlates(IEnumerable<BingoPlate> plates, string Title, string OutputDir)
+        public static void PrintPlates(IEnumerable<string> plates, string Title, string OutputDir, Bitmap cardTemplate)
+        //public static void PrintPlates(IEnumerable<BingoPlate> plates, string Title, string OutputDir)
         {
-            Bitmap OriginalBitmap = (Bitmap)Image.FromFile(TemplatePath);
+            //Bitmap OriginalBitmap = (Bitmap)Image.FromFile(TemplatePath);
             int paddingLength = plates.Count().ToString().Length;
             int totalPlateAmount = plates.Count();
             int counter = 0;
@@ -39,18 +39,17 @@ namespace ConsoleBingoPlateGenerator
             {
                 Title = "Bingo dingo";
             }
-            
 
-            foreach (BingoPlate plate in plates)
+            foreach (string plateId in plates)
             {
-                //BingoPlate plate = new BingoPlate(plateId);
+                BingoPlate plate = new BingoPlate(plateId);
                 counter++;
-                Bitmap tempBitmap = new Bitmap(OriginalBitmap);
+                Bitmap tempBitmap = new Bitmap(cardTemplate);
 
                 using (Graphics g = Graphics.FromImage(tempBitmap))
                 {
-                    g.DrawString(Title, arial, Brushes.Black, new PointF(0, 0));
-                    g.DrawString($"{counter} of {totalPlateAmount}", new Font("Arial", 8.5f), Brushes.Black, new PointF(0, 12.5f));
+                    g.DrawString(Title, arial, System.Drawing.Brushes.Black, new PointF(0, 0));
+                    g.DrawString($"{counter} of {totalPlateAmount}", new Font("Arial", 8.5f), System.Drawing.Brushes.Black, new PointF(0, 12.5f));
                     for (int y = 0; y < plate.Card.GetLength(0); y++)
                     {
                         for (int x = 0; x < plate.Card.GetLength(1); x++)
@@ -64,7 +63,7 @@ namespace ConsoleBingoPlateGenerator
                                 y: StartY + (y * PixelsBetweenRows)
                                 );
 
-                            g.DrawString(plate.Card[y, x].ToString(), arial, Brushes.Blue, drawPos);
+                            g.DrawString(plate.Card[y, x].ToString(), arial, System.Drawing.Brushes.Blue, drawPos);
                         }
                     }
                 }
@@ -75,4 +74,5 @@ namespace ConsoleBingoPlateGenerator
             }
         }
     }
+
 }
