@@ -93,5 +93,16 @@
                 />
             
         </DockPanel>
+        <DockPanel
+            Grid.Row="6"
+            Grid.Column="1"
+            LastChildFill="True"
+            >
+            <ProgressBar 
+                x:Name="lbLoad"
+                Width="250"
+                Height="20"
+                         />
+        </DockPanel>
     </Grid>
 </Window>

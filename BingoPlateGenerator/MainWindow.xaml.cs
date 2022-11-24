@@ -14,6 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Drawing;
+using System.Windows.Threading;
+using System.Threading;
 
 namespace BingoPlateGenerator
 {
@@ -26,6 +29,8 @@ namespace BingoPlateGenerator
         private TextBox tbAmount;
         private string outputDirectory;
 
+        private SynchronizationContext mainThread;
+
 
         public MainWindow()
         {
@@ -35,7 +40,13 @@ namespace BingoPlateGenerator
             tbTitle = this.txtbxTitle;
             tbAmount = this.txtbxPlateAmount;
 
+            this.lbLoad.Visibility = Visibility.Hidden;
 
+            mainThread = SynchronizationContext.Current;
+            if (mainThread == null)
+            {
+                throw new Exception("NO CONTEXT");
+            }
 
             this.btnGenerate.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(btnGenerate_PreviewMouseLeftButtonUp);
             this.btnOutput.PreviewMouseLeftButtonUp += new MouseButtonEventHandler(btnOutput_PreviewMouseLeftButtonUp);
@@ -63,6 +74,8 @@ namespace BingoPlateGenerator
             }
         }
 
+
+        private delegate void printDelegate(string text, string amount, string output, Bitmap bitmap);
         private void btnGenerate_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (String.IsNullOrEmpty(tbTitle.Text) || String.IsNullOrEmpty(tbAmount.Text))
@@ -73,24 +86,51 @@ namespace BingoPlateGenerator
             {
                 return;
             }
-            var id = PlateFactory.CreatePlates(Convert.ToInt32(tbAmount.Text)).ToList();
 
-            BingoPrinter.PrintPlates(id, tbTitle.Text, outputDirectory, Properties.Resources.CardTemplate);
+            this.lbLoad.Visibility = Visibility.Visible;
+            this.lbLoad.IsIndeterminate = true;
 
-            OnSuccessfulPrint();
+
+            DisableControlsDuringGeneration();
+            PrintPlates(tbTitle.Text, tbAmount.Text, outputDirectory, Properties.Resources.CardTemplate);
         }
+
+        private async void PrintPlates(string text, string amount, string outputDirectory, Bitmap cardTemplate)
+        {
+
+            await Task.Run(() => {
+                    var id = PlateFactory.CreatePlates(Convert.ToInt32(amount)).ToList();
+                    BingoPrinter.PrintPlates(id, text, outputDirectory, cardTemplate);
+                });
+
+            mainThread.Send((object state) => {
+                OnSuccessfulPrint();
+                DisableControlsDuringGeneration();
+            }, null);
+        }
+
+        private void DisableControlsDuringGeneration()
+        {
+            txtbxPlateAmount.IsEnabled = !txtbxPlateAmount.IsEnabled;
+            txtbxTitle.IsEnabled = !txtbxTitle.IsEnabled;
+            btnGenerate.IsEnabled = !btnGenerate.IsEnabled;
+            btnOutput.IsEnabled = !btnOutput.IsEnabled;
+        }
+
 
         private void OnSuccessfulPrint()
-        {
-            outputDirectory = "";
-            tbAmount.Text = String.Empty;
-            tbTitle.Text = String.Empty;
+            {
+                outputDirectory = "";
+                tbAmount.Text = String.Empty;
+                tbTitle.Text = String.Empty;
 
-            string msgTxt = "Successfully generated bingo plates.";
-            string msgCaption = "Success!";
+                string msgTxt = "Successfully generated bingo plates.";
+                string msgCaption = "Success!";
 
-            MessageBoxButton msgBtns = MessageBoxButton.OK;
-            MessageBox.Show(msgTxt, msgCaption, msgBtns);
+                MessageBoxButton msgBtns = MessageBoxButton.OK;
+                MessageBox.Show(msgTxt, msgCaption, msgBtns);
+                this.lbLoad.Visibility = Visibility.Hidden;
+                this.lbLoad.IsIndeterminate = false;
+            }
         }
     }
-}
